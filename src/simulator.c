@@ -1,14 +1,10 @@
 #include <stdio.h>
 #include <Windows.h>
 
-// model specific constants
-# define GUID "{49ca57ed-9c93-416f-6bc9-ee0ef5a44226}"
-#ifndef FMI2_FUNCTION_PREFIX
-#define FMI2_FUNCTION_PREFIX Addition_
-#endif
 #include "fmi2Functions.h"
 
-// no runtime resources
+// model specific constants
+#define GUID "{49ca57ed-9c93-416f-6bc9-ee0ef5a44226}"
 #define RESOURCE_LOCATION "file:///C:/Users/schyan01/github/standalonefmu_addition_binaries" // absolut path to the unziped fmu
 
 // callback functions
@@ -32,17 +28,16 @@ int main(int argc, char *argv[]) {
 
 	fmi2CallbackFunctions callbacks = {cb_logMessage, cb_allocateMemory, cb_freeMemory, NULL, NULL};
 	
-	auto libraryHandle = LoadLibraryA("models\\binaries\\win64\\Addition_binaries.dll");
+	HMODULE libraryHandle = LoadLibraryA("C:\\Users\\schyan01\\github\\StandaloneFMU_Addition_binariesmodels\\model\\binaries\\win64\\Addition_binaries.dll");
 
 	if (!libraryHandle) {
 		return EXIT_FAILURE;
 	}
 
-	GetProcAddress(libraryHandle, "fmi2Instantiate");
+	//GetProcAddress(libraryHandle, "fmi2Instantiate");
 
+	//fmi2Component c = Addition_fmi2Instantiate("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
 	/*
-	fmi2Component c = Addition_fmi2Instantiate("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
-	
 	if (!c) return 1;
 
 	fmi2Real Time = 0;
