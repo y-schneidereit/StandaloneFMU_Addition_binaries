@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <Windows.h>
 
 #include "fmi2Functions.h"
 
@@ -27,16 +26,8 @@ int main(int argc, char *argv[]) {
 	fmi2Status status = fmi2OK;
 
 	fmi2CallbackFunctions callbacks = {cb_logMessage, cb_allocateMemory, cb_freeMemory, NULL, NULL};
-	
-	HMODULE libraryHandle = LoadLibraryA("C:\\Users\\schyan01\\github\\StandaloneFMU_Addition_binariesmodels\\model\\binaries\\win64\\Addition_binaries.dll");
 
-	if (!libraryHandle) {
-		return EXIT_FAILURE;
-	}
-
-	//GetProcAddress(libraryHandle, "fmi2Instantiate");
-
-	//fmi2Component c = Addition_fmi2Instantiate("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
+	fmi2Component c = fmi2Instantiate("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
 	/*
 	if (!c) return 1;
 
