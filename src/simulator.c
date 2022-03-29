@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <Windows.h>
 
 #include "fmi2Functions.h"
 
@@ -22,25 +23,55 @@ static void cb_freeMemory(void* obj) {
 #define CHECK_STATUS(S) { status = S; if (status != fmi2OK) goto TERMINATE; }
 
 int main(int argc, char *argv[]) {
+	HMODULE libraryHandle = LoadLibraryA("C:\\Users\\schyan01\\github\\StandaloneFMU_Addition_binaries\\model\\binaries\\win64\\Addition_binaries.dll");
+
+	if (!libraryHandle)
+	{
+		return EXIT_FAILURE;
+	}
+	
+	fmi2InstantiateTYPE* instantiatePtr = NULL;
+	fmi2FreeInstanceTYPE* freeInstancePtr = NULL;
+	fmi2SetupExperimentTYPE* SetupExperimentPtr = NULL;
+	fmi2EnterInitializationModeTYPE* EnterInitializationModePtr = NULL;
+	fmi2ExitInitializationModeTYPE* ExitInitializationModePtr = NULL;
+	fmi2SetRealTYPE* SetRealPtr = NULL;
+	fmi2GetRealTYPE* GetRealPtr = NULL;
+	fmi2DoStepTYPE* DoStepPtr = NULL;
+
+	instantiatePtr = GetProcAddress(libraryHandle, "fmi2Instantiate");
+	freeInstancePtr = GetProcAddress(libraryHandle, "fmi2FreeInstance");
+	SetupExperimentPtr = GetProcAddress(libraryHandle, "fmi2SetupExperiment");
+	EnterInitializationModePtr = GetProcAddress(libraryHandle, "fmi2EnterInitializationMode");
+	ExitInitializationModePtr = GetProcAddress(libraryHandle, "fmi2ExitInitializationMode");
+	SetRealPtr = GetProcAddress(libraryHandle, "fmi2SetReal");
+	GetRealPtr = GetProcAddress(libraryHandle, "fmi2GetReal");
+	DoStepPtr = GetProcAddress(libraryHandle, "fmi2DoStep");
+
+	if (NULL == instantiatePtr || NULL == freeInstancePtr || NULL == SetupExperimentPtr || NULL == EnterInitializationModePtr || NULL == ExitInitializationModePtr
+		|| NULL == SetRealPtr || NULL == GetRealPtr || NULL == DoStepPtr)
+	{
+		return EXIT_FAILURE;
+	}
 
 	fmi2Status status = fmi2OK;
 
 	fmi2CallbackFunctions callbacks = {cb_logMessage, cb_allocateMemory, cb_freeMemory, NULL, NULL};
 
-	fmi2Component c = fmi2Instantiate("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
-	/*
+	fmi2Component c = instantiatePtr("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
+	
 	if (!c) return 1;
-
+	
 	fmi2Real Time = 0;
 	fmi2Real stepSize = 1;
 	fmi2Real stopTime = 10;
 
 	// Informs the FMU to setup the experiment. Must be called after fmi2Instantiate and befor fmi2EnterInitializationMode
-	CHECK_STATUS(Addition_fmi2SetupExperiment(c, fmi2False, 0, Time, fmi2False, 0));
+	CHECK_STATUS(SetupExperimentPtr(c, fmi2False, 0, Time, fmi2False, 0));
 	
 	// Informs the FMU to enter Initialization Mode.
-	CHECK_STATUS(Addition_fmi2EnterInitializationMode(c));
-
+	CHECK_STATUS(EnterInitializationModePtr(c));
+	
 	fmi2ValueReference x_ref = 0;
 	fmi2Real x = 0;
 
@@ -50,11 +81,11 @@ int main(int argc, char *argv[]) {
 	fmi2ValueReference Ergebnis_ref = 2;
 	fmi2Real Ergebnis;
 
-	CHECK_STATUS(Addition_fmi2SetReal(c, &x_ref, 1, &x));
-	CHECK_STATUS(Addition_fmi2SetReal(c, &y_ref, 1, &y));
-
-	CHECK_STATUS(Addition_fmi2ExitInitializationMode(c));
-
+	CHECK_STATUS(SetRealPtr(c, &x_ref, 1, &x));
+	CHECK_STATUS(SetRealPtr(c, &y_ref, 1, &y));
+	
+	CHECK_STATUS(ExitInitializationModePtr(c));
+	
 	printf("time, x, y, Ergenbis\n");
 
 	for (int nSteps = 0; nSteps <= 10; nSteps++) {
@@ -62,29 +93,29 @@ int main(int argc, char *argv[]) {
 		Time = nSteps * stepSize;
 
 		// set an input
-		CHECK_STATUS(Addition_fmi2SetReal(c, &x_ref, 1, &x));
-		CHECK_STATUS(Addition_fmi2SetReal(c, &y_ref, 1, &y));
-
+		CHECK_STATUS(SetRealPtr(c, &x_ref, 1, &x));
+		CHECK_STATUS(SetRealPtr(c, &y_ref, 1, &y));
+		
 		// perform a simulation step
-		CHECK_STATUS(Addition_fmi2DoStep(c, Time, stepSize, fmi2True));	//The computation of a time step is started.
+		CHECK_STATUS(DoStepPtr(c, Time, stepSize, fmi2True));	//The computation of a time step is started.
 		
 		// get an output
-		CHECK_STATUS(Addition_fmi2GetReal(c, &Ergebnis_ref, 1, &Ergebnis));
+		CHECK_STATUS(GetRealPtr(c, &Ergebnis_ref, 1, &Ergebnis));
 
 		printf("%.2f, %.0f, %.0f, %.0f\n", Time, x, y, Ergebnis);
-
+		
 		x++;
 		y+=2;
 	}
-
+	
 TERMINATE:
 
-	Addition_fmi2Terminate(c);
-
+	//Addition_fmi2Terminate(c);
+	
 	// clean up
 	if (status < fmi2Fatal) {
-		Addition_fmi2FreeInstance(c);
+		freeInstancePtr(c);
 	}
-	*/
+	
 	return status;
 }

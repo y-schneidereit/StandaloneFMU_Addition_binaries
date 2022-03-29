@@ -15,4 +15,11 @@ target_include_directories(simulator PUBLIC
   model/binaries/win64
 )
 
-target_link_libraries(simulator C:/Users/schyan01/github/StandaloneFMU_Addition_binaries/model/binaries/win64/Addition_binaries.dll)
+if (MSVC)
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+  target_link_libraries(simulator shlwapi.lib)
+endif ()
+
+if (UNIX)
+  target_link_libraries(simulator m ${CMAKE_DL_LIBS})
+endif (UNIX)
