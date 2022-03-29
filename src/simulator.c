@@ -117,6 +117,8 @@ TERMINATE:
 	if (status < fmi2Fatal) {
 		FreeInstancePtr(c);
 	}
+
+	FreeLibrary(libraryHandle);
 	
 	return status;
 }
