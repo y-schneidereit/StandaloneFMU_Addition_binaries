@@ -30,8 +30,8 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 	
-	fmi2InstantiateTYPE* instantiatePtr = NULL;
-	fmi2FreeInstanceTYPE* freeInstancePtr = NULL;
+	fmi2InstantiateTYPE* InstantiatePtr = NULL;
+	fmi2FreeInstanceTYPE* FreeInstancePtr = NULL;
 	fmi2SetupExperimentTYPE* SetupExperimentPtr = NULL;
 	fmi2EnterInitializationModeTYPE* EnterInitializationModePtr = NULL;
 	fmi2ExitInitializationModeTYPE* ExitInitializationModePtr = NULL;
@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
 	fmi2DoStepTYPE* DoStepPtr = NULL;
 	fmi2TerminateTYPE* TerminatePtr = NULL;
 
-	instantiatePtr = GetProcAddress(libraryHandle, "fmi2Instantiate");
-	freeInstancePtr = GetProcAddress(libraryHandle, "fmi2FreeInstance");
+	InstantiatePtr = GetProcAddress(libraryHandle, "fmi2Instantiate");
+	FreeInstancePtr = GetProcAddress(libraryHandle, "fmi2FreeInstance");
 	SetupExperimentPtr = GetProcAddress(libraryHandle, "fmi2SetupExperiment");
 	EnterInitializationModePtr = GetProcAddress(libraryHandle, "fmi2EnterInitializationMode");
 	ExitInitializationModePtr = GetProcAddress(libraryHandle, "fmi2ExitInitializationMode");
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 	DoStepPtr = GetProcAddress(libraryHandle, "fmi2DoStep");
 	TerminatePtr = GetProcAddress(libraryHandle, "fmi2Terminate");
 
-	if (NULL == instantiatePtr || NULL == freeInstancePtr || NULL == SetupExperimentPtr || NULL == EnterInitializationModePtr || NULL == ExitInitializationModePtr
+	if (NULL == InstantiatePtr || NULL == FreeInstancePtr || NULL == SetupExperimentPtr || NULL == EnterInitializationModePtr || NULL == ExitInitializationModePtr
 		|| NULL == SetRealPtr || NULL == GetRealPtr || NULL == DoStepPtr || NULL == TerminatePtr)
 	{
 		return EXIT_FAILURE;
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 
 	fmi2CallbackFunctions callbacks = {cb_logMessage, cb_allocateMemory, cb_freeMemory, NULL, NULL};
 
-	fmi2Component c = instantiatePtr("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
+	fmi2Component c = InstantiatePtr("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
 	
 	if (!c) return 1;
 	
@@ -115,7 +115,7 @@ TERMINATE:
 	
 	// clean up
 	if (status < fmi2Fatal) {
-		freeInstancePtr(c);
+		FreeInstancePtr(c);
 	}
 	
 	return status;
