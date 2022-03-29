@@ -38,6 +38,7 @@ int main(int argc, char *argv[]) {
 	fmi2SetRealTYPE* SetRealPtr = NULL;
 	fmi2GetRealTYPE* GetRealPtr = NULL;
 	fmi2DoStepTYPE* DoStepPtr = NULL;
+	fmi2TerminateTYPE* TerminatePtr = NULL;
 
 	instantiatePtr = GetProcAddress(libraryHandle, "fmi2Instantiate");
 	freeInstancePtr = GetProcAddress(libraryHandle, "fmi2FreeInstance");
@@ -47,9 +48,10 @@ int main(int argc, char *argv[]) {
 	SetRealPtr = GetProcAddress(libraryHandle, "fmi2SetReal");
 	GetRealPtr = GetProcAddress(libraryHandle, "fmi2GetReal");
 	DoStepPtr = GetProcAddress(libraryHandle, "fmi2DoStep");
+	TerminatePtr = GetProcAddress(libraryHandle, "fmi2Terminate");
 
 	if (NULL == instantiatePtr || NULL == freeInstancePtr || NULL == SetupExperimentPtr || NULL == EnterInitializationModePtr || NULL == ExitInitializationModePtr
-		|| NULL == SetRealPtr || NULL == GetRealPtr || NULL == DoStepPtr)
+		|| NULL == SetRealPtr || NULL == GetRealPtr || NULL == DoStepPtr || NULL == TerminatePtr)
 	{
 		return EXIT_FAILURE;
 	}
@@ -109,8 +111,7 @@ int main(int argc, char *argv[]) {
 	}
 	
 TERMINATE:
-
-	//Addition_fmi2Terminate(c);
+	TerminatePtr(c);
 	
 	// clean up
 	if (status < fmi2Fatal) {
